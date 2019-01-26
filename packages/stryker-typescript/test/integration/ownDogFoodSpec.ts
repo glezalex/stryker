@@ -7,7 +7,7 @@ import TypescriptConfigEditor from '../../src/TypescriptConfigEditor';
 import TypescriptTranspiler from '../../src/TypescriptTranspiler';
 import { CONFIG_KEY } from '../../src/helpers/keys';
 
-describe('stryker-typescript', () => {
+describe.only('stryker-typescript', () => {
 
   let config: Config;
   let inputFiles: File[];

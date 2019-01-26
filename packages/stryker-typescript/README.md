@@ -27,7 +27,10 @@ coverageAnalysis: 'off', // Coverage analysis with a transpiler is not supported
 tsconfigFile: 'tsconfig.json', // Location of your tsconfig.json file
 mutator: 'typescript', // Specify that you want to mutate typescript code
 transpilers: [
-    'typescript' // Specify that your typescript code needs to be transpiled before tests can be run. Not needed if you're using ts-node Just-in-time compilation.
+    'typescript' 
+    // Specify that your typescript code needs to be transpiled before tests can be run. 
+    // Not needed if you're using other ways to compile your code. 
+    // Like angular-cli, babel 7 or ts-node Just-in-time compilation
 ]
 ```
 
