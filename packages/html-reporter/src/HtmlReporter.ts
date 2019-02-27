@@ -9,6 +9,8 @@ import { StrykerOptions } from '@stryker-mutator/api/core';
 import { tokens, commonTokens } from '@stryker-mutator/api/plugin';
 
 const DEFAULT_BASE_FOLDER = path.normalize('reports/mutation/html');
+const MUTATION_RESULT_FILE_NAME = 'mutation-report.json';
+const MUTATION_TEST_ELEMENTS_FILE_NAME = 'mutation-test-elements.js';
 export const RESOURCES_DIR_NAME = 'strykerResources';
 
 export default class HtmlReporter implements Reporter {
@@ -40,11 +42,27 @@ export default class HtmlReporter implements Reporter {
     return this.mainPromise;
   }
 
-  private generateReport() {
-    return this.cleanBaseFolder()
-      .then(() => this.writeCommonResources())
-      .then(() => this.writeReportDirectory())
-      .then(location => this.log.info(`Your report can be found at: ${fileUrl(location)}`));
+  private async generateReport(): Promise<void> {
+    await this.cleanBaseFolder();
+    await this.writeReportJson();
+    await this.writeCommonResources();
+    const location = await this.writeReportDirectory();
+    this.log.info(`Your report can be found at: ${fileUrl(location)}`);
+  }
+
+  private async writeReportJson() {
+    const base = path.join(this.baseDir, 'new');
+    const indexFileName = path.join(base, 'index.html');
+    const mutationTestElements = path.join(base, MUTATION_TEST_ELEMENTS_FILE_NAME);
+    const mutationResultFileName = path.join(base, MUTATION_RESULT_FILE_NAME);
+    await util.mkdir(base);
+    const report = util.toReportSchema(this.mutantResults, this.files, this.options.thresholds);
+    await Promise.all([
+      util.writeFile(mutationResultFileName, JSON.stringify(report, null, 2)),
+      util.copyFile(require.resolve('mutation-testing-elements'), mutationTestElements),
+      util.writeFile(indexFileName, templates.mutationTestReport(MUTATION_RESULT_FILE_NAME, MUTATION_TEST_ELEMENTS_FILE_NAME))
+    ]);
+    this.log.info(`Your **NEW** report can be found at: ${fileUrl(indexFileName)}`);
   }
 
   private writeCommonResources() {
